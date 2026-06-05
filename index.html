@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Islamischer Lern-Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --deep-teal: #1a3a4a;
+    --teal: #1d6e6e;
+    --gold: #c9963a;
+    --gold-light: #e8b84b;
+    --gold-pale: #f5e6c3;
+    --cream: #fdf6e3;
+    --text-light: #f0e8d5;
+    --text-muted: #9aada8;
+    --success: #2d8a5e;
+    --error: #9b3a3a;
+    --white: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Tajawal', sans-serif;
+    background-color: var(--navy);
+    color: var(--text-light);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Islamic Geometric Background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-conic-gradient(from 0deg at 50% 50%, transparent 0deg, transparent 44deg, rgba(201,150,58,0.04) 44deg, rgba(201,150,58,0.04) 46deg),
+      repeating-conic-gradient(from 22.5deg at 50% 50%, transparent 0deg, transparent 44deg, rgba(201,150,58,0.03) 44deg, rgba(201,150,58,0.03) 46deg);
+    background-size: 80px 80px, 80px 80px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(29,110,110,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(201,150,58,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 2rem;
+    animation: fadeDown 0.7s ease both;
+  }
+
+  .bismillah {
+    font-family: 'Amiri', serif;
+    font-size: 2rem;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
+    text-shadow: 0 0 40px rgba(201,150,58,0.3);
+  }
+
+  .header h1 {
+    font-family: 'Amiri', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 0.25rem;
+  }
+
+  .header p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    font-weight: 300;
+  }
+
+  /* ── GEOMETRIC DIVIDER ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0 1.5rem;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+    opacity: 0.4;
+  }
+  .divider-star {
+    width: 20px; height: 20px;
+    position: relative;
+    opacity: 0.7;
+  }
+  .divider-star::before, .divider-star::after {
+    content: '✦';
+    color: var(--gold);
+    font-size: 12px;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .divider-star::after { transform: translate(-50%, -50%) rotate(45deg); }
+
+  /* ── CATEGORY GRID ── */
+  #screen-start .categories {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .cat-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,150,58,0.25);
+    border-radius: 16px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cat-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(201,150,58,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .cat-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+  .cat-card:hover::before { opacity: 1; }
+  .cat-card.selected {
+    border-color: var(--gold);
+    background: rgba(201,150,58,0.12);
+    box-shadow: 0 0 0 1px var(--gold), inset 0 0 20px rgba(201,150,58,0.08);
+  }
+
+  .cat-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .cat-name { font-size: 1rem; font-weight: 500; color: var(--text-light); }
+  .cat-count { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.85rem 2.5rem;
+    border-radius: 50px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: var(--navy);
+    width: 100%;
+    letter-spacing: 0.03em;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,150,58,0.35); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid rgba(201,150,58,0.4);
+    color: var(--gold);
+    width: 100%;
+    margin-top: 0.75rem;
+  }
+  .btn-secondary:hover { background: rgba(201,150,58,0.08); border-color: var(--gold); }
+
+  /* ── QUIZ SCREEN ── */
+  .progress-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+
+  .progress-bar-wrap {
+    background: rgba(255,255,255,0.08);
+    border-radius: 50px;
+    height: 6px;
+    margin-bottom: 1.75rem;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--teal), var(--gold));
+    border-radius: 50px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .question-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,150,58,0.15);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(to right, var(--teal), var(--gold));
+  }
+
+  .q-badge {
+    display: inline-block;
+    background: rgba(201,150,58,0.15);
+    color: var(--gold);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.2rem 0.75rem;
+    border-radius: 50px;
+    border: 1px solid rgba(201,150,58,0.3);
+    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+  }
+
+  .question-text {
+    font-family: 'Amiri', serif;
+    font-size: 1.4rem;
+    line-height: 1.6;
+    color: var(--cream);
+    margin-bottom: 0.5rem;
+  }
+
+  .arabic-text {
+    font-family: 'Amiri', serif;
+    font-size: 1.1rem;
+    color: var(--gold);
+    opacity: 0.8;
+    direction: rtl;
+    margin-top: 0.5rem;
+  }
+
+  /* ── ANSWER OPTIONS ── */
+  .options-grid {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .option-btn {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.975rem;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .option-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(201,150,58,0.08);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .option-btn:not([disabled]):hover {
+    border-color: rgba(201,150,58,0.5);
+    transform: translateX(4px);
+  }
+  .option-btn:not([disabled]):hover::before { opacity: 1; }
+
+  .option-letter {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(201,150,58,0.15);
+    border: 1px solid rgba(201,150,58,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--gold);
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .option-btn.correct {
+    border-color: var(--success);
+    background: rgba(45,138,94,0.15);
+    transform: translateX(4px);
+  }
+  .option-btn.correct .option-letter {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+  }
+
+  .option-btn.wrong {
+    border-color: var(--error);
+    background: rgba(155,58,58,0.15);
+  }
+  .option-btn.wrong .option-letter {
+    background: var(--error);
+    border-color: var(--error);
+    color: white;
+  }
+
+  .option-btn[disabled] { cursor: default; }
+
+  /* ── FEEDBACK BOX ── */
+  .feedback-box {
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    display: none;
+    animation: fadeUp 0.35s ease;
+  }
+  .feedback-box.show { display: flex; align-items: flex-start; gap: 0.75rem; }
+  .feedback-box.correct-fb { background: rgba(45,138,94,0.15); border: 1px solid rgba(45,138,94,0.35); }
+  .feedback-box.wrong-fb { background: rgba(155,58,58,0.12); border: 1px solid rgba(155,58,58,0.3); }
+  .feedback-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem; }
+  .feedback-text strong { display: block; font-size: 0.95rem; margin-bottom: 0.2rem; }
+  .feedback-text p { font-size: 0.875rem; color: var(--text-muted); line-height: 1.5; }
+
+  /* ── SCORE PANEL ── */
+  .score-panel {
+    display: flex;
+    gap: 0.75rem;
+  }
+  .score-item {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 0.6rem 0.5rem;
+    text-align: center;
+  }
+  .score-value { font-size: 1.4rem; font-weight: 700; }
+  .score-value.green { color: #4caf81; }
+  .score-value.red { color: #e07070; }
+  .score-value.gold { color: var(--gold); }
+  .score-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* ── RESULT SCREEN ── */
+  #screen-result { text-align: center; }
+
+  .result-circle {
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    border: 3px solid var(--gold);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    position: relative;
+    background: rgba(201,150,58,0.08);
+    box-shadow: 0 0 0 8px rgba(201,150,58,0.06), 0 0 40px rgba(201,150,58,0.15);
+  }
+  .result-score-num {
+    font-family: 'Amiri', serif;
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .result-score-total { font-size: 0.9rem; color: var(--text-muted); }
+
+  .result-message {
+    font-family: 'Amiri', serif;
+    font-size: 1.75rem;
+    color: var(--cream);
+    margin-bottom: 0.5rem;
+  }
+  .result-sub { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 2rem; }
+
+  .result-stats {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+  .result-stat {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    min-width: 110px;
+  }
+  .result-stat-val { font-size: 1.5rem; font-weight: 700; }
+  .result-stat-lbl { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ── SCREENS ── */
+  .screen { display: none; animation: fadeUp 0.4s ease both; }
+  .screen.active { display: block; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse-gold {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(201,150,58,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(201,150,58,0); }
+  }
+
+  .next-btn-wrap { margin-top: 0.5rem; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 520px) {
+    .bismillah { font-size: 1.5rem; }
+    .header h1 { font-size: 1.5rem; }
+    #screen-start .categories { grid-template-columns: 1fr; }
+    .question-text { font-size: 1.2rem; }
+    .result-stats { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+    <h1>🕌 Islamischer Lern-Quiz</h1>
+    <p>Teste dein Wissen über Islam, Quran & Hadith</p>
+    <div class="divider"><span class="divider-star"></span></div>
+  </div>
+
+  <!-- START SCREEN -->
+  <div class="screen active" id="screen-start">
+    <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1rem; text-align:center;">Wähle eine Kategorie oder starte mit allen Fragen:</p>
+    <div class="categories" id="cat-grid"></div>
+    <div style="margin-top:0.5rem;">
+      <button class="btn btn-primary" id="btn-start">Quiz starten ✦</button>
+      <button class="btn btn-secondary" id="btn-all">Alle Kategorien (mix)</button>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="screen" id="screen-quiz">
+    <div class="progress-header">
+      <span id="q-counter">Frage 1 von 10</span>
+      <span id="q-cat-label">—</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+    </div>
+
+    <div class="score-panel" style="margin-bottom:1.25rem;">
+      <div class="score-item"><div class="score-value green" id="score-correct">0</div><div class="score-label">Richtig</div></div>
+      <div class="score-item"><div class="score-value red" id="score-wrong">0</div><div class="score-label">Falsch</div></div>
+      <div class="score-item"><div class="score-value gold" id="score-pct">0%</div><div class="score-label">Genauigkeit</div></div>
+    </div>
+
+    <div class="question-card">
+      <div id="q-badge" class="q-badge">Quran</div>
+      <div class="question-text" id="q-text">Frage wird geladen...</div>
+      <div class="arabic-text" id="q-arabic" style="display:none;"></div>
+    </div>
+
+    <div class="options-grid" id="options-grid"></div>
+
+    <div class="feedback-box" id="feedback-box">
+      <div class="feedback-icon" id="fb-icon"></div>
+      <div class="feedback-text">
+        <strong id="fb-title"></strong>
+        <p id="fb-body"></p>
+      </div>
+    </div>
+
+    <div class="next-btn-wrap" id="next-wrap" style="display:none;">
+      <button class="btn btn-primary" id="btn-next">Nächste Frage →</button>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="screen" id="screen-result">
+    <div class="result-circle">
+      <div class="result-score-num" id="res-score">0</div>
+      <div class="result-score-total" id="res-total">von 10</div>
+    </div>
+    <div class="result-message" id="res-message">Masha'Allah!</div>
+    <div class="result-sub" id="res-sub">Sehr gutes Ergebnis!</div>
+    <div class="result-stats">
+      <div class="result-stat">
+        <div class="result-stat-val" style="color:#4caf81" id="res-correct">0</div>
+        <div class="result-stat-lbl">Richtig</div>
+      </div>
+      <div class="result-stat">
+        <div class="result-stat-val" style="color:#e07070" id="res-wrong">0</div>
+        <div class="result-stat-lbl">Falsch</div>
+      </div>
+      <div class="result-stat">
+        <div class="result-stat-val" style="color:var(--gold)" id="res-pct">0%</div>
+        <div class="result-stat-lbl">Genauigkeit</div>
+      </div>
+    </div>
+    <div class="divider"><span class="divider-star"></span></div>
+    <div style="margin-top:1.5rem;">
+      <button class="btn btn-primary" id="btn-restart">Nochmal spielen ↺</button>
+      <button class="btn btn-secondary" id="btn-home">Zur Startseite</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const ALL_QUESTIONS = [
+  // ── QURAN ──
+  {
+    cat: "Quran", catEmoji: "📖",
+    q: "Welche Sure ist die erste im Quran?",
+    arabic: "سُورَةُ الْفَاتِحَة",
+    opts: ["Al-Baqara", "Al-Fatiha", "Al-Ikhlas", "Ya-Sin"],
+    a: 1,
+    exp: "Al-Fatiha (Die Öffnende) ist die erste Sure des Qurans und wird in jedem Gebet rezitiert."
+  },
+  {
+    cat: "Quran", catEmoji: "📖",
+    q: "Wie viele Suren hat der heilige Quran?",
+    opts: ["99", "112", "114", "120"],
+    a: 2,
+    exp: "Der Quran besteht aus 114 Suren (Kapiteln), die in 30 Dschuz' (Abschnitte) unterteilt sind."
+  },
+  {
+    cat: "Quran", catEmoji: "📖",
+    q: "Was ist die längste Sure im Quran?",
+    arabic: "سُورَةُ الْبَقَرَة",
+    opts: ["Al-Imran", "An-Nisa", "Al-Baqara", "Al-Maidah"],
+    a: 2,
+    exp: "Al-Baqara (Die Kuh) ist mit 286 Versen die längste Sure des Qurans."
+  },
+  {
+    cat: "Quran", catEmoji: "📖",
+    q: "Was ist die kürzeste Sure im Quran?",
+    arabic: "سُورَةُ الْكَوْثَر",
+    opts: ["Al-Ikhlas", "Al-Kawthar", "Al-Asr", "An-Nasr"],
+    a: 1,
+    exp: "Al-Kawthar (Der Überfluss) ist die kürzeste Sure mit nur 3 Versen."
+  },
+  {
+    cat: "Quran", catEmoji: "📖",
+    q: "In welcher Stadt wurde der erste Vers des Qurans offenbart?",
+    opts: ["Medina", "Taif", "Mekka", "Jerusalem"],
+    a: 2,
+    exp: "Der erste Vers wurde im Jahr 610 n. Chr. in der Höhle Hira nahe Mekka offenbart."
+  },
+  {
+    cat: "Quran", catEmoji: "📖",
+    q: "Welches war das erste Wort, das dem Propheten ﷺ offenbart wurde?",
+    arabic: "اقْرَأْ",
+    opts: ["Bismillah", "Iqra (Lies!)", "Alhamdulillah", "Allahu Akbar"],
+    a: 1,
+    exp: "'Iqra!' (Lies!) war das erste offenbarte Wort – der Beginn von Sure Al-Alaq (96:1)."
+  },
+  {
+    cat: "Quran", catEmoji: "📖",
+    q: "Welcher Engel überbrachte die Offenbarung an den Propheten ﷺ?",
+    opts: ["Israfil", "Mikail", "Jibril (Gabriel)", "Azrail"],
+    a: 2,
+    exp: "Jibril (Erzengel Gabriel) überbrachte die Offenbarungen Allahs an den Propheten Muhammad ﷺ."
+  },
+  {
+    cat: "Quran", catEmoji: "📖",
+    q: "Was bedeutet 'Ayah' auf Arabisch?",
+    opts: ["Kapitel", "Gebet", "Zeichen / Vers", "Abschnitt"],
+    a: 2,
+    exp: "Ayah (آية) bedeutet 'Zeichen' oder 'Vers'. Der Quran hat etwa 6.236 Ayat."
+  },
+
+  // ── HADITH ──
+  {
+    cat: "Hadith", catEmoji: "📜",
+    q: "Welche Hadith-Sammlung gilt als die zuverlässigste?",
+    opts: ["Sahih Muslim", "Sahih al-Bukhari", "Sunan Abu Dawud", "Muwatta Malik"],
+    a: 1,
+    exp: "Sahih al-Bukhari gilt unter Gelehrten als die authentischste Hadith-Sammlung nach dem Quran."
+  },
+  {
+    cat: "Hadith", catEmoji: "📜",
+    q: "Wer stellte die Sammlung 'Sahih al-Bukhari' zusammen?",
+    opts: ["Imam Muslim", "Imam Malik", "Imam al-Bukhari", "Ibn Majah"],
+    a: 2,
+    exp: "Muhammad ibn Ismail al-Bukhari (810–870 n. Chr.) prüfte hunderttausende Hadithe und wählte 7.275 als sahih aus."
+  },
+  {
+    cat: "Hadith", catEmoji: "📜",
+    q: "Was ist ein 'Sahih' Hadith?",
+    opts: ["Ein schwacher Hadith", "Ein authentischer Hadith", "Ein verbotener Hadith", "Ein langer Hadith"],
+    a: 1,
+    exp: "Sahih (صحيح) bedeutet 'gesund/authentisch'. Ein Sahih-Hadith hat eine ununterbrochene Kette zuverlässiger Überlieferer."
+  },
+  {
+    cat: "Hadith", catEmoji: "📜",
+    q: "Welche der 'Sechs Bücher' (Kutub as-Sitta) gehört NICHT dazu?",
+    opts: ["Sunan Ibn Majah", "Sunan at-Tirmidhi", "Musnad Ahmad", "Sahih al-Bukhari"],
+    a: 2,
+    exp: "Musnad Ahmad gehört nicht zu den Kutub as-Sitta. Die sechs Bücher sind: Bukhari, Muslim, Abu Dawud, Tirmidhi, Nasa'i und Ibn Majah."
+  },
+  {
+    cat: "Hadith", catEmoji: "📜",
+    q: "Was ist ein 'Isnad' im Hadith?",
+    opts: ["Der Text des Hadiths", "Die Überlieferungskette", "Ein Kommentar zum Hadith", "Eine Art Gebet"],
+    a: 1,
+    exp: "Isnad (إسناد) ist die Kette der Überlieferer, durch die ein Hadith weitergegeben wurde. Er ist entscheidend für die Authentizität."
+  },
+
+  // ── FÜNF SÄULEN ──
+  {
+    cat: "Fünf Säulen", catEmoji: "🕌",
+    q: "Wie viele Mal betet ein Muslim täglich?",
+    opts: ["3 Mal", "4 Mal", "5 Mal", "7 Mal"],
+    a: 2,
+    exp: "Ein Muslim betet täglich 5 Mal: Fajr (Morgendämmerung), Dhuhr (Mittag), Asr (Nachmittag), Maghrib (Sonnenuntergang), Isha (Nacht)."
+  },
+  {
+    cat: "Fünf Säulen", catEmoji: "🕌",
+    q: "Was ist die erste Säule des Islam?",
+    arabic: "الشَّهَادَة",
+    opts: ["Salat (Gebet)", "Zakat (Almosen)", "Schahada (Glaubenszeugnis)", "Saum (Fasten)"],
+    a: 2,
+    exp: "Die Schahada ist das islamische Glaubensbekenntnis: 'Es gibt keinen Gott außer Allah, und Muhammad ﷺ ist Sein Gesandter.'"
+  },
+  {
+    cat: "Fünf Säulen", catEmoji: "🕌",
+    q: "Was ist Zakat?",
+    opts: ["Freiwillige Spende", "Pflichtalmosen (2,5% des Vermögens)", "Das tägliche Gebet", "Das Freitagsgebet"],
+    a: 1,
+    exp: "Zakat ist die Pflichtabgabe von 2,5% des angesammelten Vermögens über einem Mindestschwellenwert (Nisab), die jährlich an Bedürftige entrichtet wird."
+  },
+  {
+    cat: "Fünf Säulen", catEmoji: "🕌",
+    q: "In welchem Monat des islamischen Kalenders fasten Muslime?",
+    arabic: "رَمَضَان",
+    opts: ["Muharram", "Rajab", "Ramadan", "Shawwal"],
+    a: 2,
+    exp: "Ramadan ist der 9. Monat des islamischen Mondkalenders. Muslime fasten von der Morgendämmerung bis zum Sonnenuntergang."
+  },
+  {
+    cat: "Fünf Säulen", catEmoji: "🕌",
+    q: "Was ist der Hajj?",
+    opts: ["Das tägliche Gebet", "Die Pilgerfahrt nach Mekka", "Das Freitagsgebet", "Das Fastenbrechen"],
+    a: 1,
+    exp: "Der Hajj ist die Pilgerfahrt nach Mekka, die jeder fähige Muslim einmal im Leben vollziehen muss. Er findet im Monat Dhul-Hijja statt."
+  },
+
+  // ── GESCHICHTE ──
+  {
+    cat: "Geschichte", catEmoji: "🌙",
+    q: "In welchem Jahr vollzog der Prophet ﷺ die Hidschra (Auswanderung nach Medina)?",
+    opts: ["610 n. Chr.", "622 n. Chr.", "630 n. Chr.", "632 n. Chr."],
+    a: 1,
+    exp: "Die Hidschra (Auswanderung von Mekka nach Medina) fand 622 n. Chr. statt. Dieses Jahr markiert den Beginn des islamischen Kalenders (1 AH)."
+  },
+  {
+    cat: "Geschichte", catEmoji: "🌙",
+    q: "Wer war der erste Kalif nach dem Tod des Propheten ﷺ?",
+    opts: ["Umar ibn al-Khattab", "Uthman ibn Affan", "Abu Bakr as-Siddiq", "Ali ibn Abi Talib"],
+    a: 2,
+    exp: "Abu Bakr as-Siddiq (ra) war der erste rechtgeleitete Kalif und engster Begleiter des Propheten ﷺ."
+  },
+  {
+    cat: "Geschichte", catEmoji: "🌙",
+    q: "In welcher Stadt wurde der Prophet Muhammad ﷺ geboren?",
+    opts: ["Medina", "Jerusalem", "Mekka", "Taif"],
+    a: 2,
+    exp: "Der Prophet Muhammad ﷺ wurde ca. 570 n. Chr. in Mekka (Saudi-Arabien) geboren, im sogenannten 'Jahr des Elefanten'."
+  },
+  {
+    cat: "Geschichte", catEmoji: "🌙",
+    q: "Wie heißt der Stamm, dem der Prophet ﷺ angehörte?",
+    opts: ["Banu Hashim / Quraisch", "Banu Khazraj", "Banu Aus", "Banu Tamim"],
+    a: 0,
+    exp: "Der Prophet ﷺ gehörte dem Clan der Banu Hashim an, der Teil des mächtigen Stammes der Quraisch in Mekka war."
+  },
+  {
+    cat: "Geschichte", catEmoji: "🌙",
+    q: "Wann wurde Mekka von den Muslimen unter dem Propheten ﷺ gewaltfrei eingenommen?",
+    opts: ["624 n. Chr.", "627 n. Chr.", "630 n. Chr.", "632 n. Chr."],
+    a: 2,
+    exp: "Die Einnahme von Mekka (Fath Mekka) fand im Jahr 630 n. Chr. (8 AH) statt und verlief fast ohne Blutvergießen."
+  }
+];
+
+const CATEGORIES = [
+  { id: "Quran",       label: "Quran",         emoji: "📖", desc: "Suren, Verse & Offenbarung" },
+  { id: "Hadith",      label: "Hadith",         emoji: "📜", desc: "Überlieferungen des Propheten ﷺ" },
+  { id: "Fünf Säulen", label: "Fünf Säulen",   emoji: "🕌", desc: "Gebet, Zakat, Fasten & mehr" },
+  { id: "Geschichte",  label: "Geschichte",     emoji: "🌙", desc: "Islamische Geschichte & Sira" },
+];
+
+let selectedCat = null;
+let questions = [];
+let currentIdx = 0;
+let correct = 0;
+let wrong = 0;
+let answered = false;
+
+// Build category cards
+const catGrid = document.getElementById('cat-grid');
+CATEGORIES.forEach(cat => {
+  const count = ALL_QUESTIONS.filter(q => q.cat === cat.id).length;
+  const card = document.createElement('div');
+  card.className = 'cat-card';
+  card.innerHTML = `<div class="cat-icon">${cat.emoji}</div><div class="cat-name">${cat.label}</div><div class="cat-count">${count} Fragen</div>`;
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedCat = cat.id;
+  });
+  catGrid.appendChild(card);
+});
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startQuiz(cat) {
+  const pool = cat ? ALL_QUESTIONS.filter(q => q.cat === cat) : ALL_QUESTIONS;
+  questions = shuffle(pool).slice(0, Math.min(12, pool.length));
+  currentIdx = 0; correct = 0; wrong = 0;
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  answered = false;
+  const q = questions[currentIdx];
+  const total = questions.length;
+
+  document.getElementById('q-counter').textContent = `Frage ${currentIdx + 1} von ${total}`;
+  document.getElementById('q-cat-label').textContent = q.catEmoji + ' ' + q.cat;
+  document.getElementById('q-badge').textContent = q.cat;
+  document.getElementById('q-text').textContent = q.q;
+
+  const arabicEl = document.getElementById('q-arabic');
+  if (q.arabic) { arabicEl.textContent = q.arabic; arabicEl.style.display = ''; }
+  else { arabicEl.style.display = 'none'; }
+
+  document.getElementById('progress-bar').style.width = ((currentIdx / total) * 100) + '%';
+  updateScorePanel();
+
+  const feedback = document.getElementById('feedback-box');
+  feedback.className = 'feedback-box';
+  document.getElementById('next-wrap').style.display = 'none';
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.addEventListener('click', () => selectAnswer(i));
+    grid.appendChild(btn);
+  });
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  const q = questions[currentIdx];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('feedback-box');
+
+  if (idx === q.a) {
+    correct++;
+    btns[idx].classList.add('correct');
+    fb.className = 'feedback-box correct-fb show';
+    document.getElementById('fb-icon').textContent = '✅';
+    document.getElementById('fb-title').textContent = 'Richtig! Alhamdulillah!';
+    document.getElementById('fb-body').textContent = q.exp;
+  } else {
+    wrong++;
+    btns[idx].classList.add('wrong');
+    btns[q.a].classList.add('correct');
+    fb.className = 'feedback-box wrong-fb show';
+    document.getElementById('fb-icon').textContent = '❌';
+    document.getElementById('fb-title').textContent = 'Leider falsch!';
+    document.getElementById('fb-body').textContent = q.exp;
+  }
+
+  updateScorePanel();
+  document.getElementById('next-wrap').style.display = 'block';
+
+  if (currentIdx === questions.length - 1) {
+    document.getElementById('btn-next').textContent = 'Ergebnis anzeigen →';
+  } else {
+    document.getElementById('btn-next').textContent = 'Nächste Frage →';
+  }
+}
+
+function updateScorePanel() {
+  const total = currentIdx + (answered ? 1 : 0);
+  const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+  document.getElementById('score-correct').textContent = correct;
+  document.getElementById('score-wrong').textContent = wrong;
+  document.getElementById('score-pct').textContent = pct + '%';
+}
+
+function showResult() {
+  const total = questions.length;
+  const pct = Math.round((correct / total) * 100);
+  document.getElementById('res-score').textContent = correct;
+  document.getElementById('res-total').textContent = 'von ' + total;
+  document.getElementById('res-correct').textContent = correct;
+  document.getElementById('res-wrong').textContent = wrong;
+  document.getElementById('res-pct').textContent = pct + '%';
+
+  let msg, sub;
+  if (pct >= 90) { msg = "Masha'Allah! 🌟"; sub = "Hervorragendes Wissen – Möge Allah es segnen!"; }
+  else if (pct >= 70) { msg = "Alhamdulillah! 🎉"; sub = "Sehr gut! Bleib dabei und lerne weiter."; }
+  else if (pct >= 50) { msg = "Gut gemacht! 💪"; sub = "Weiterlernen – du bist auf dem richtigen Weg!"; }
+  else { msg = "In sha'Allah! 📚"; sub = "Übe weiter – jedes Wissen bringt dich näher zu Allah."; }
+
+  document.getElementById('res-message').textContent = msg;
+  document.getElementById('res-sub').textContent = sub;
+  showScreen('screen-result');
+}
+
+// Events
+document.getElementById('btn-start').addEventListener('click', () => {
+  startQuiz(selectedCat);
+});
+document.getElementById('btn-all').addEventListener('click', () => {
+  selectedCat = null;
+  document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('selected'));
+  startQuiz(null);
+});
+document.getElementById('btn-next').addEventListener('click', () => {
+  if (currentIdx < questions.length - 1) {
+    currentIdx++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+});
+document.getElementById('btn-restart').addEventListener('click', () => startQuiz(selectedCat));
+document.getElementById('btn-home').addEventListener('click', () => {
+  selectedCat = null;
+  document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('selected'));
+  showScreen('screen-start');
+});
+</script>
+</body>
+</html>
