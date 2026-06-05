@@ -1,0 +1,45 @@
+{
+  "name": "amtassist",
+  "version": "1.0.0",
+  "description": "KI-Assistent für deutsche Behördenformulare – Chrome Extension",
+  "private": true,
+  "scripts": {
+    "lint": "eslint src/ popup.js --ext .js",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "build": "echo 'Static extension – no bundler needed' && exit 0",
+    "validate-manifest": "node scripts/validate-manifest.js",
+    "dev": "web-ext run --source-dir . --browser-console"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0",
+    "jest": "^29.0.0",
+    "web-ext": "^8.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {}
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "chrome-extension",
+    "germany",
+    "behoerde",
+    "forms",
+    "ai-assist",
+    "deutsch"
+  ],
+  "author": "Rintu Chowdory <https://github.com/rintuchowdory>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rintuchowdory/amtassist.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rintuchowdory/amtassist/issues"
+  },
+  "homepage": "https://github.com/rintuchowdory/amtassist#readme"
+}

@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.vercel/
+*.zip
+.env
+.env.local
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+coverage/
+.web-ext-artifacts/

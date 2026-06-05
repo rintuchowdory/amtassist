@@ -1,16 +1,50 @@
 {
   "manifest_version": 3,
-  "name": "AmtAssist",
-  "version": "0.1.0",
-  "description": "AI assistance for German forms",
-  "permissions": ["activeTab"],
+  "name": "AmtAssist – KI-Assistent für Behördenformulare",
+  "short_name": "AmtAssist",
+  "version": "1.0.0",
+  "description": "KI-gestützte Ausfüllhilfe für deutsche Behördenformulare. Felder erkennen, Erklärungen auf Deutsch und Englisch – direkt im Browser.",
+  "author": "Rintu Chowdory <github.com/rintuchowdory>",
+  "homepage_url": "https://github.com/rintuchowdory/amtassist",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_title": "AmtAssist",
+    "default_icon": {
+      "16": "public/icons/icon16.png",
+      "32": "public/icons/icon32.png",
+      "48": "public/icons/icon48.png",
+      "128": "public/icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "public/icons/icon16.png",
+    "32": "public/icons/icon32.png",
+    "48": "public/icons/icon48.png",
+    "128": "public/icons/icon128.png"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["src/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "src/background.js",
+    "type": "module"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["public/*"],
+      "matches": ["<all_urls>"]
     }
   ]
 }
